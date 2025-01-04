@@ -8,8 +8,8 @@
     }
   },
   "models": {
-    "minilm": {
-      "sourceModel": "sentence-transformers/all-MiniLM-L6-v2",
+    "llama": {
+      "sourceModel": "meta-llama/Meta-Llama-3.1-8B-Instruct",
       "connection": "hypermode",
       "provider": "hugging-face"
     }
