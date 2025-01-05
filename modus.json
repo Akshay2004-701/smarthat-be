@@ -17,7 +17,7 @@
   "connections": {
     "dgraph-grpc": {
       "type": "dgraph",
-      "grpcTarget": "localhost:9080"
+      "grpcTarget": "localhost:9080" 
     }
   }
 }
