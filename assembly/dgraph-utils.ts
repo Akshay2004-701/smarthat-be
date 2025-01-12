@@ -145,7 +145,7 @@ export function searchBySimilarity<T>(
   const query = `
     query search($vector: float32vector) {
         var(func: similar_to(${predicate},${topK},$vector))  {    
-            vemb as Product.embedding 
+            vemb as Resource.embedding 
             dist as math((vemb - $vector) dot (vemb - $vector))
             score as math(1 - (dist / 2.0))
         } 
@@ -169,4 +169,16 @@ export function addEmbeddingToJson(payload: string, predicate: string, embedding
   // TO DO: extend to nested entities and use JSONpath
   payload = payload.replace("{", `{ \"${predicate}\":\"${JSON.stringify(embedding)}\",`)
   return payload
+}
+
+export function getAllNodes<T>(connection: string, body: string): T[] {
+  const query = `{
+      list(func: type(Resource)) {
+          ${body}
+      }
+  }`
+  
+  const dgraph_query = new dgraph.Query(query);
+  const response = dgraph.execute(connection, new dgraph.Request(dgraph_query));
+  return JSON.parse<ListOf<T>>(response.Json).list
 }
