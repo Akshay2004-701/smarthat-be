@@ -21,24 +21,9 @@ import {
 export {generateCourse} from "./course-generator"
 export {generateQuiz} from "./quiz-generator"
 
-const QUERY_MODEL = "llama"
+
 const DGRAPH_CONNECTION = "dgraph-grpc"
 
-export function generateText(prompt: string): string {
-  const model = models.getModel<OpenAIChatModel>(QUERY_MODEL)
-
-
-  const input = model.createInput([new UserMessage(prompt)])
-
-  input.temperature = 0.7
-  const output = model.invoke(input)
-
-  return output.choices[0].message.content.trim()
-}
-
-export function sayHello(name: string | null = null): string {
-  return `Hello, ${name || "World"}!`;
-}
 
 /**
  * add a learner
