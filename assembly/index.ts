@@ -1,20 +1,13 @@
-import { models } from "@hypermode/modus-sdk-as"
-import {
-  OpenAIChatModel,
-  UserMessage
-} from "@hypermode/modus-sdk-as/models/openai/chat"
 
 import { JSON } from "json-as"
 import { dgraph } from "@hypermode/modus-sdk-as"
-import { Learner, Resource } from "./learner"
-import { buildLearnerMutationJson,buildResourceMutationJson } from "./helper"
+import { Resource } from "./learner"
+import { buildResourceMutationJson } from "./helper"
 import { embedText } from "./embeddings"
 import {
   deleteNodePredicates,
   ListOf,
-  searchBySimilarity,
   getEntityById,
-  addEmbeddingToJson,
   getAllNodes
 } from "./dgraph-utils"
 
@@ -25,17 +18,6 @@ export {generateQuiz} from "./quiz-generator"
 const DGRAPH_CONNECTION = "dgraph-grpc"
 
 
-/**
- * add a learner
- */
-export function upsertLearner(learner:Learner): Map<string, string> | null {
-  var payload = buildLearnerMutationJson(DGRAPH_CONNECTION, learner)
-
-  const mutations: dgraph.Mutation[] = [new dgraph.Mutation(payload)]
-  const uids = dgraph.execute(DGRAPH_CONNECTION, new dgraph.Request(null, mutations)).Uids
-
-  return uids
-}
 
 /**
  * add a resource
@@ -53,35 +35,7 @@ export function upsertResource(res:Resource): Map<string, string> | null {
   return uids
 }
 
-/**
- * Get a learner info by their id
- */
-export function getLearner(id: string): Learner | null {
-  const body = `
-    Learner.id
-    Learner.name
-    Learner.email
-    Learner.interests
-    Learner.goals
-    Learner.preferredLearningStyle
-    Learner.existingKnowledgeLevel`
-  return getEntityById<Learner>(DGRAPH_CONNECTION, "Learner.id", id, body)
-}
 
-/**
- * Delete a learner by their id
- */
-export function deleteLearner(id: string): void {
-  deleteNodePredicates(DGRAPH_CONNECTION, `eq(Learner.id, "${id}")`, [
-    "Learner.id",
-    "Learner.name",
-    "Learner.email",
-    "Learner.interests",
-    "Learner.goals",
-    "Learner.preferredLearningStyle",
-    "Learner.existingKnowledgeLevel",
-  ])
-}
 
 /**
  * Get a resource by its id
@@ -92,7 +46,9 @@ export function getResource(id: string): Resource | null {
     Resource.title
     Resource.description
     Resource.topic
-    Resource.url`
+    Resource.url
+    Resource.tags
+    `
   return getEntityById<Resource>(DGRAPH_CONNECTION, "Resource.resourceId", id, body)
 }
 
@@ -106,6 +62,7 @@ export function deleteResource(id: string): void {
     "Resource.description",
     "Resource.topic",
     "Resource.url",
+    "Resource.tags",
   ])
 }
 
@@ -120,6 +77,7 @@ export function getResourcesByTopic(topic: string): Resource[] {
       Resource.description
       Resource.topic
       Resource.url
+      Resource.tags
     }
   }`)
   const response = dgraph.execute(DGRAPH_CONNECTION, new dgraph.Request(query))
@@ -127,21 +85,7 @@ export function getResourcesByTopic(topic: string): Resource[] {
   return data.list
 }
 
-/**
- * Search resources by similarity to a given text
- */
-export function searchResources(search: string): Resource[] {
-  const embedding = embedText([search])[0]
-  const topK = 3
-  const body = `
-    Resource.resourceId
-    Resource.title
-    Resource.description
-    Resource.topic
-    Resource.url
-  `
-  return searchBySimilarity<Resource>(DGRAPH_CONNECTION, embedding, "Resource.embedding", body, topK)
-}
+
 
 export function getResourceByTag(tag: string): Resource[] {
   const query = new dgraph.Query(`{

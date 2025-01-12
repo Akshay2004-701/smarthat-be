@@ -1,15 +1,6 @@
 @json
 export class Learner {
-
-  @alias("Learner.id")
-  id: string = ""
-
-  @alias("Learner.name")
-  name: string = ""
-
-  @alias("Learner.email")
-  email: string = ""
-
+  
   @alias("Learner.interests")
   interests: string[] = []
 

@@ -18,14 +18,14 @@ const COURSE_SCHEMA = `{
     "exercises": "A few activities the learner could do to improve his skill on the topic"
   }`
 
-export function generateCoursePrompt(learner: Learner): string {
+export function generateCoursePrompt(interests:string[], goals:string[], preferredLearningStyle:string, existingKnowledgeLevel:string): string {
     return `As an expert educational content creator, please generate a comprehensive learning course tailored to the following learner profile:
   
   Learner Profile:
-  - Interests: ${learner.interests.join(', ')}
-  - Goals: ${learner.goals.join(', ')}
-  - Preferred Learning Style: ${learner.preferredLearningStyle}
-  - Existing Knowledge Level: ${learner.existingKnowledgeLevel}
+  - Interests: ${interests.join(', ')}
+  - Goals: ${goals.join(', ')}
+  - Preferred Learning Style: ${preferredLearningStyle}
+  - Existing Knowledge Level: ${existingKnowledgeLevel}
   
   Please create a structured course that follows this specific format:
   {
@@ -53,9 +53,9 @@ export function generateCoursePrompt(learner: Learner): string {
 
 
 
-export function generateCourse(learner:Learner): String {
+export function generateCourse(interests:string[], goals:string[], preferredLearningStyle:string, existingKnowledgeLevel:string): String {
     const model = models.getModel<OpenAIChatModel>(QUERY_MODEL)
-    const input = model.createInput([new UserMessage(generateCoursePrompt(learner))])
+    const input = model.createInput([new UserMessage(generateCoursePrompt(interests,goals, preferredLearningStyle,existingKnowledgeLevel))])
     input.responseFormat = {
       type: "json_object",
       jsonSchema: COURSE_SCHEMA
